@@ -5,14 +5,10 @@ from PIL import Image
 import io
 import base64
 import threading
-from transformers import GPT2LMHeadModel, GPT2Tokenizer  # Importing the necessary libraries
+#from transformers import GPT2LMHeadModel, GPT2Tokenizer  # Importing the necessary libraries
+from gtts import gTTS
+import pygame
 
-# Load the GPT-2 model and tokenizer
-model_name = "gpt2"  # You can use a smaller or larger model if desired
-model = GPT2LMHeadModel.from_pretrained(model_name)
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-
-model.config.pad_token_id = model.config.eos_token_id
 
 # Function with a 3-second delay to simulate a long-running task
 def my_function(window):
@@ -25,6 +21,29 @@ def my_function(window):
     if connection:
         window['-CONNECTION-'].update("Connection Successful", text_color='dark green')
         window['-ATTEMPT-'].update(visible=False)
+        # The text that you want to convert to audio
+        mytext = 'Connection Successful'
+
+        # Language in which you want to convert
+        language = 'en'
+        # Passing the text and language to the engine, 
+        # here we have marked slow=False. Which tells 
+        # the module that the converted audio should 
+        # have a high speed
+        myobj = gTTS(text=mytext, lang=language, slow=False)
+
+        # Saving the converted audio in a mp3 file named
+        # welcome 
+        myobj.save("welcome.mp3")
+
+        # Initialize the mixer module
+        pygame.mixer.init()
+
+        # Load the mp3 file
+        pygame.mixer.music.load("welcome.mp3")
+
+        # Play the loaded mp3 file
+        pygame.mixer.music.play()
         
     else:
         # After the delay, hide the additional layout
