@@ -1,65 +1,59 @@
+import pygame
+import tts_speach as tts
 import PySimpleGUI as sg
 import time
-import os
 from PIL import Image
 import io
 import base64
 import threading
-#from transformers import GPT2LMHeadModel, GPT2Tokenizer  # Importing the necessary libraries
-from gtts import gTTS
-import pygame
+import sys
+import os
+
+# Add the directory containing the module to the Python path
+module_path = os.path.abspath(os.path.join('..', 'f_content'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+# Now you can import the module
+# from transformers import GPT2LMHeadModel, GPT2Tokenizer  # Importing the necessary libraries
+# from gtts import gTTS
 
 
 # Function with a 3-second delay to simulate a long-running task
-def my_function(window):
+def f_welcome(window):
     connection = True
     for attempt in range(1, 5):  # Loop for 4 attempts
         time.sleep(1)  # Simulating work
         # Update the loading message in the additional layout
         window['-ATTEMPT-'].update(f"Attempt {attempt}")
-        
+
     if connection:
-        window['-CONNECTION-'].update("Connection Successful", text_color='dark green')
+        window['-CONNECTION-'].update("Connection Successful",
+                                      text_color='dark green')
         window['-ATTEMPT-'].update(visible=False)
         # The text that you want to convert to audio
-        mytext = 'Connection Successful'
+        mytext = 'Connection Successful, Welcome to Synthea MARK.1, how can I help you today?'
+        SYNTHEA = tts.TTS()
+        SYNTHEA.speak_text(mytext)
 
-        # Language in which you want to convert
-        language = 'en'
-        # Passing the text and language to the engine, 
-        # here we have marked slow=False. Which tells 
-        # the module that the converted audio should 
-        # have a high speed
-        myobj = gTTS(text=mytext, lang=language, slow=False)
-
-        # Saving the converted audio in a mp3 file named
-        # welcome 
-        myobj.save("welcome.mp3")
-
-        # Initialize the mixer module
-        pygame.mixer.init()
-
-        # Load the mp3 file
-        pygame.mixer.music.load("welcome.mp3")
-
-        # Play the loaded mp3 file
-        pygame.mixer.music.play()
-        
     else:
         # After the delay, hide the additional layout
         window['-ADDITIONAL-'].update(visible=False)
 
 # Function to convert image to base64 and get image size
+
+
 def convert_to_base64_and_get_size(image_path, scale=1.0):
     with Image.open(image_path) as img:
         # Resize the image
         new_size = (int(img.width * scale), int(img.height * scale))
         img = img.resize(new_size)
-        
+
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")
         img_size = img.size  # Get image size (width, height)
         return base64.b64encode(buffer.getvalue()).decode("utf-8"), img_size
+
 
 def resize_image(image_data, scale):
     img = Image.open(io.BytesIO(base64.b64decode(image_data)))
@@ -68,6 +62,7 @@ def resize_image(image_data, scale):
     buffered = io.BytesIO()
     image.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode('utf-8')
+
 
 # Get the current working directory
 current_directory = os.getcwd()
@@ -82,7 +77,8 @@ loading_images_base64 = []
 image_size = None
 scale_factor = 0.65  # Scale factor to reduce size
 for img in loading_images:
-    img_base64, img_size = convert_to_base64_and_get_size(current_directory + img, scale=scale_factor)
+    img_base64, img_size = convert_to_base64_and_get_size(
+        current_directory + img, scale=scale_factor)
     loading_images_base64.append(img_base64)
     if image_size is None:
         image_size = img_size
@@ -99,9 +95,9 @@ loading_layout = [[sg.Image(data=loading_images_base64[0], key='-LOADING-')]]
 
 # Create the Loading Screen window
 loading_window = sg.Window(
-    "Loading Screen", 
-    loading_layout, 
-    size=image_size, 
+    "Loading Screen",
+    loading_layout,
+    size=image_size,
     location=(window_x, window_y),  # Center the window
     finalize=True
 )
@@ -113,7 +109,8 @@ start_time = time.time()
 # Loading Screen Loop for Animation
 while time.time() - start_time < 3:  # Keep the loading window open for 3 seconds
     # Update the image in the window to create an animation effect
-    loading_window['-LOADING-'].update(data=loading_images_base64[frame % len(loading_images_base64)])
+    loading_window['-LOADING-'].update(
+        data=loading_images_base64[frame % len(loading_images_base64)])
     frame += 1
     loading_window.refresh()
     time.sleep(0.1)  # Adjust this for animation speed
@@ -125,15 +122,18 @@ resized_image_data = resize_image(loading_images_base64[2], 0.7)
 
 # Create a layout for additional controls
 additional_layout = [
-    [sg.Text("Attempting to Perform a connection to the device", key='-CONNECTION-', text_color='blue')],
-    [sg.Text("Attempt 0", key='-ATTEMPT-', text_color='red', visible=True)],  # Text element to update with attempts
+    [sg.Text("Attempting to Perform a connection to the device",
+             key='-CONNECTION-', text_color='blue')],
+    # Text element to update with attempts
+    [sg.Text("Attempt 0", key='-ATTEMPT-', text_color='red', visible=True)],
     [sg.Button("Cancel", key='Cancel')]
 ]
 
 # Create a layout with a centered image
 layout = [
     [sg.Column([[sg.Image(data=resized_image_data)]], justification='center')],
-    [sg.Column(additional_layout, key='-ADDITIONAL-', visible=True, justification='center')]
+    [sg.Column(additional_layout, key='-ADDITIONAL-',
+               visible=True, justification='center')]
 ]
 
 # Create the main window
@@ -146,7 +146,7 @@ main_window = sg.Window(
 )
 
 # Start the function in a separate thread
-thread = threading.Thread(target=my_function, args=(main_window,))
+thread = threading.Thread(target=f_welcome, args=(main_window,))
 thread.start()
 
 # Main Screen Event Loop
