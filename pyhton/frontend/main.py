@@ -23,21 +23,9 @@ def my_function(window):
         window['-ATTEMPT-'].update(f"Attempt {attempt}")
         
     if connection:
-        # Generate a response from the GPT model when the connection is successful
-        input_text = "What is your status?"  # Input for the AI model
-        input_ids = tokenizer.encode(input_text, return_tensors='pt')
-        # Create attention mask (1 for tokens and 0 for padding)
-        attention_mask = input_ids.ne(tokenizer.pad_token_id).float()
-        
-        # Generate output using the model
-        output = model.generate(input_ids, attention_mask=attention_mask, max_length=50)
-        response = tokenizer.decode(output[0], skip_special_tokens=True)
-        
         window['-CONNECTION-'].update("Connection Successful", text_color='dark green')
         window['-ATTEMPT-'].update(visible=False)
         
-        # Update the window with the AI response
-        window['-AI_RESPONSE-'].update(response)
     else:
         # After the delay, hide the additional layout
         window['-ADDITIONAL-'].update(visible=False)
@@ -120,7 +108,7 @@ resized_image_data = resize_image(loading_images_base64[2], 0.7)
 additional_layout = [
     [sg.Text("Attempting to Perform a connection to the device", key='-CONNECTION-', text_color='blue')],
     [sg.Text("Attempt 0", key='-ATTEMPT-', text_color='red', visible=True)],  # Text element to update with attempts
-    [sg.Text("", key='-AI_RESPONSE-', text_color='black')],  # Text element to display AI response
+    [sg.Button("Cancel", key='Cancel')]
 ]
 
 # Create a layout with a centered image
