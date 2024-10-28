@@ -174,7 +174,7 @@ class SyntheaApp:
         '''self.video_path = os.path.join(
             self.current_directory, 'frontend\images', 'synthea_goth.mp4')'''
         self.video_path = os.path.join(
-            self.current_directory, 'frontend\images', 'stear.mp4')
+            self.current_directory, 'frontend\images', 'stear_synthea.mp4')
 
         # Create a layout for additional controls
         additional_layout = [
@@ -189,7 +189,7 @@ class SyntheaApp:
         # Create a layout with a centered image
         layout = [
             [sg.Column([[sg.Image(key='-VIDEO-')]],
-                       justification='center', background_color='#1a1f1d'),],
+                       justification='center', background_color='#000000'),], #background_color='#1a1f1d')
             [sg.Column(additional_layout, key='-ADDITIONAL-',
                        visible=True, justification='center')]
         ]
@@ -199,7 +199,7 @@ class SyntheaApp:
             "Synthea MARK.1",
             layout,
             location=(self.window_x, self.window_y),  # Center the window
-            background_color='#1a1f1d',
+            background_color='#000000',
             resizable=True,
             finalize=True
         )
