@@ -1,40 +1,65 @@
-import PySimpleGUI as psg
-from PIL import Image
-import io
-import base64
+import cv2
+from PIL import Image, ImageTk
+import PySimpleGUI as sg
+import os
 
-# Function to convert image to base64
-def convert_to_base64(image_path):
-    with Image.open(image_path) as img:
-        buffer = io.BytesIO()
-        img.save(buffer, format="PNG")
-        return base64.b64encode(buffer.getvalue()).decode("utf-8")
+def play_video(video_path):
+    # Check if the file exists
+    if not os.path.exists(video_path):
+        print(f"Error: The video file '{video_path}' does not exist.")
+        return
 
-# Corrected file path using raw string
-image_path = r'C:\Users\chris\Desktop\Root\Work\C\Synthea-Arm\pyhton\frontend\images\Logo.jpg'
-image_base64 = convert_to_base64(image_path)
+    # Open the video file using OpenCV
+    cap = cv2.VideoCapture(video_path)
+    
+    # Check if the video opened successfully
+    if not cap.isOpened():
+        print("Error: Could not open video. The video codec might not be supported.")
+        return
+    else:
+        print("Success: Video opened successfully.")
 
-layout = [
-    [psg.Text(
-        text='Python GUIs for Humans',
-        font=('Arial Bold', 16),
-        size=20,
-        expand_x=True,
-        justification='center'
-    )],
-    [psg.Image(
-        data=image_base64,
-        expand_x=True,
-        expand_y=True
-    )]
-]
+    # Define the layout of the GUI window
+    layout = [[sg.Image(filename="", key="-IMAGE-")],
+              [sg.Button("Play"), sg.Button("Pause"), sg.Button("Exit")]]
 
-window = psg.Window('HelloWorld', layout, size=(715, 350), keep_on_top=True)
+    # Create the window
+    window = sg.Window("Video Player", layout, finalize=True)
+    
+    playing = False
 
-while True:
-    event, values = window.read()
-    print(event, values)
-    if event in (None, 'Exit'):
-        break
+    # Main loop
+    while True:
+        event, values = window.read(timeout=20)
+        
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            break
+        elif event == "Play":
+            playing = True
+        elif event == "Pause":
+            playing = False
 
-window.close()
+        # If the video is playing, read the next frame
+        if playing:
+            ret, frame = cap.read()
+            
+            if not ret:
+                print("Warning: End of video or cannot read the frame.")
+                break  # Exit if end of video
+
+            # Convert the frame to RGB (OpenCV uses BGR by default)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Convert the frame to a PIL image, then to ImageTk format
+            img = Image.fromarray(frame)
+            img = ImageTk.PhotoImage(image=img)
+            
+            # Update the image in the PySimpleGUI window
+            window["-IMAGE-"].update(data=img)
+
+    # Release the video capture object and close the GUI window
+    cap.release()
+    window.close()
+
+# Run the function with your video path
+play_video("C:\\Users\\Christopher Takacs\\OneDrive\\Ambiente de Trabalho\\Root\\My Projects\\Engineering\\Synthea-Arm\\pyhton\\frontend\\images\\synthea_goth.mp4")
