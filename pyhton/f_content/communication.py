@@ -10,6 +10,7 @@
 
 import smbus2 ## Used for accessing the system I2C bus (improvement over smbus)
 import time ## Used for time delays
+import serial ## Used for serial communication
 
 ## Important instructions for the I2C communication protocol and the library in https://pypi.org/project/smbus2/
 
@@ -30,3 +31,21 @@ class I2C:
 
     
     ## TODO: If we have bulk messages we can use the i2c_msg class, for this check the library documentation
+
+
+class serialUart:
+    def __init__(self):
+        self.COM_PORT = '/dev/ttyUSB0'
+        self.BAUD_RATE = 115200
+        self.command = None
+        self.parity = serial.PARITY_NONE
+        self.stopbits = serial.STOPBITS_ONE
+        self.bytesize = serial.EIGHTBITS
+        self.ser = serial.Serial(port=self.COM_PORT, baudrate=self.BAUD_RATE, parity=self.parity, stopbits=self.stopbits, bytesize=self.bytes)
+
+    def write(self, data):
+        self.ser.write(data)
+    
+    def read(self):
+        self.command = self.ser.readline().decode('utf-8') ## Read the data from the serial port
+        return self.command

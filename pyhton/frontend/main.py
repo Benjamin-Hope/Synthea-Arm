@@ -97,8 +97,8 @@ class SyntheaApp:
             window['-ATTEMPT-'].update(visible=False)
             # The text that you want to convert to audio
             mytext = 'Welcome I’m Synthea, How can I help you today Sir?'
-            SYNTHEA = tts.TTS()
-            SYNTHEA.speak_text(mytext)
+            Synthea = tts.TTS()
+            Synthea.speak_text(mytext)
             threading.Thread(target=self.rec).start()
         else:
             # After the delay, hide the additional layout
@@ -226,7 +226,7 @@ class SyntheaApp:
         main_window.close()
         sys.exit()
 
-    def runner(self):
+    async def runner(self):
         self.video_path = os.path.join(
             self.current_directory, 'frontend\images', 'synthea_goth.mp4')
         self.loading_video_path = os.path.join(
